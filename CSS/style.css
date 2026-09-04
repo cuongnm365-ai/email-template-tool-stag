@@ -1,0 +1,684 @@
+/* =========================================================
+   SOC COMMAND CENTER — DESIGN SYSTEM v2
+   Phong cách: "Trạm điều hành" — gọn, rõ, đỡ mỏi mắt khi dùng nhiều giờ/ca.
+   Giữ nguyên mọi ID/class mà JS đang dùng (xem JS/engine.js, google-auth.js,
+   settings-panel.js) — chỉ thay đổi phần nhìn, không đổi hành vi.
+   ========================================================= */
+
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap');
+
+/* ----- 0. TOKEN HỆ THỐNG (Sáng = mặc định, Tối = data-theme="dark") ----- */
+:root {
+    --font-display: 'Space Grotesk', sans-serif;
+    --font-body: 'Inter', 'Segoe UI', sans-serif;
+    --font-mono: 'IBM Plex Mono', monospace;
+
+    --bg: #F1F4F9;
+    --bg-soft: #E7EBF2;
+    --surface: #FFFFFF;
+    --surface-2: #F7F9FC;
+    --border: #E1E6EF;
+    --border-strong: #C9D2E0;
+
+    --text: #1B2433;
+    --text-muted: #69748A;
+    --text-faint: #9AA4B6;
+
+    --accent: #F26F21;
+    --accent-strong: #D9590F;
+    --accent-soft: #FDEAD9;
+    --accent-soft-text: #9A4413;
+
+    --ink: #16213E;
+    --ink-soft: #EEF1FA;
+    --ink-strong: #0D1730;
+
+    --success: #168A5E;
+    --success-soft: #E3F6EE;
+    --danger: #D8453F;
+    --danger-soft: #FCEAEA;
+
+    --shadow-sm: 0 1px 2px rgba(20, 30, 55, 0.04), 0 1px 1px rgba(20, 30, 55, 0.03);
+    --shadow-md: 0 8px 24px rgba(20, 30, 55, 0.07);
+    --shadow-lg: 0 16px 40px rgba(20, 30, 55, 0.10);
+
+    --radius: 14px;
+    --radius-sm: 9px;
+}
+
+html[data-theme="dark"] {
+    --bg: #0F141C;
+    --bg-soft: #151B25;
+    --surface: #1A212C;
+    --surface-2: #20283400;
+    --surface-2: #1E2531;
+    --border: #2A323F;
+    --border-strong: #3A4456;
+
+    --text: #E8EBF2;
+    --text-muted: #98A2B6;
+    --text-faint: #687087;
+
+    --accent: #F26F21;
+    --accent-strong: #FF8A47;
+    --accent-soft: #3A2415;
+    --accent-soft-text: #FFB582;
+
+    --ink: #B9C6E8;
+    --ink-soft: #1B2236;
+    --ink-strong: #DCE4F7;
+
+    --success: #38D399;
+    --success-soft: #11321F;
+    --danger: #F47C76;
+    --danger-soft: #341714;
+
+    --shadow-sm: 0 1px 2px rgba(0,0,0,0.4);
+    --shadow-md: 0 8px 24px rgba(0,0,0,0.45);
+    --shadow-lg: 0 18px 44px rgba(0,0,0,0.55);
+}
+
+* { box-sizing: border-box; }
+
+body {
+    font-family: var(--font-body);
+    background-color: var(--bg);
+    color: var(--text);
+    transition: background-color 0.25s ease, color 0.25s ease;
+}
+
+h1, h2, h3, .font-display {
+    font-family: var(--font-display) !important;
+    letter-spacing: -0.01em;
+}
+
+.font-mono { font-family: var(--font-mono); }
+
+/* ----- 1. Thanh cuộn ----- */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 8px; }
+::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+
+/* ----- 2. Ô nhập liệu ----- */
+.soc-input {
+    width: 100%;
+    padding: 10px 14px;
+    background-color: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text);
+    font-size: 13.5px;
+    font-weight: 500;
+    font-family: var(--font-body);
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    box-shadow: var(--shadow-sm);
+}
+.soc-input:focus-visible,
+.soc-input:focus {
+    border-color: var(--accent);
+    outline: none;
+    box-shadow: 0 0 0 3px var(--accent-soft);
+}
+.soc-input::placeholder { color: var(--text-faint); font-weight: 400; }
+.soc-input:disabled { cursor: not-allowed; opacity: 0.6; }
+
+.soc-label {
+    display: block;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-family: var(--font-mono);
+}
+
+input[type="checkbox"].template-input { accent-color: var(--accent); }
+
+input[type="date"]::-webkit-calendar-picker-indicator {
+    cursor: pointer;
+    opacity: 0.55;
+    transition: opacity 0.2s ease;
+}
+html[data-theme="dark"] input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(1); }
+input[type="date"]::-webkit-calendar-picker-indicator:hover { opacity: 1; }
+
+/* ----- 3. Khung đăng nhập (khung chung cũ — vẫn giữ để tương thích) ----- */
+#loginModal > div {
+    box-shadow: var(--shadow-lg);
+}
+
+/* ----- 4. Sidebar ----- */
+.soc-brand-mark {
+    background: var(--ink);
+    color: #fff;
+}
+.tab-btn {
+    color: var(--text-muted);
+    border-left: 3px solid transparent;
+    font-family: var(--font-body);
+    font-weight: 700;
+    transition: all 0.15s ease;
+}
+.tab-btn:hover { color: var(--ink); background: var(--bg-soft); }
+.tab-btn.active {
+    color: var(--accent-strong);
+    background: var(--accent-soft);
+    border-left-color: var(--accent);
+}
+.soc-account-card {
+    background: var(--bg-soft);
+    border: 1px solid var(--border);
+}
+
+/* ----- 5. Header + status pill ----- */
+.soc-header { background: var(--surface); border-bottom: 1px solid var(--border); }
+.status-pill {
+    display: inline-flex; align-items: center; gap: 7px;
+    padding: 5px 12px;
+    border-radius: 999px;
+    font-family: var(--font-mono);
+    font-size: 11px; font-weight: 600;
+    letter-spacing: 0.02em;
+    background: var(--bg-soft);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+}
+.status-pill .dot {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: var(--text-faint);
+    flex-shrink: 0;
+}
+.status-pill.is-ready { color: var(--success); border-color: var(--success-soft); background: var(--success-soft); }
+.status-pill.is-ready .dot { background: var(--success); box-shadow: 0 0 0 3px var(--success-soft); animation: pulse-dot 2s infinite; }
+
+@keyframes pulse-dot {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(22, 138, 94, 0.35); }
+    50% { box-shadow: 0 0 0 4px rgba(22, 138, 94, 0); }
+}
+@media (prefers-reduced-motion: reduce) {
+    .status-pill.is-ready .dot { animation: none; }
+}
+
+.theme-toggle {
+    width: 36px; height: 36px;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.15s ease;
+    flex-shrink: 0;
+}
+.theme-toggle:hover { color: var(--accent); border-color: var(--accent); }
+
+/* ----- 6. Step card (form theo từng bước) ----- */
+.step-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-sm);
+}
+.step-head {
+    display: flex; align-items: center; gap: 10px;
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border);
+}
+.step-index {
+    font-family: var(--font-mono);
+    font-size: 11px; font-weight: 700;
+    color: var(--accent);
+    background: var(--accent-soft);
+    border-radius: 6px;
+    padding: 3px 7px;
+    flex-shrink: 0;
+}
+.step-title {
+    font-size: 12px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.05em;
+    color: var(--text);
+}
+.step-body { padding: 16px; }
+
+.workspace-panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-sm);
+}
+
+/* ----- 7. Khung xem trước Email (giả lập client email) ----- */
+.mail-frame {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-md);
+    overflow: hidden;
+}
+.mail-toolbar {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 14px;
+    background: var(--bg-soft);
+    border-bottom: 1px solid var(--border);
+}
+.mail-dots { display: flex; gap: 6px; }
+.mail-dots span { width: 9px; height: 9px; border-radius: 50%; display: block; }
+.mail-dots span:nth-child(1) { background: #ED6A5E; }
+.mail-dots span:nth-child(2) { background: #F4BF4F; }
+.mail-dots span:nth-child(3) { background: #61C454; }
+
+.mail-meta { background: var(--surface-2); border-bottom: 1px solid var(--border); }
+.mail-meta-row {
+    display: flex; align-items: baseline; gap: 10px;
+    padding: 7px 16px;
+    font-size: 12.5px;
+}
+.mail-meta-row + .mail-meta-row { border-top: 1px dashed var(--border); }
+.mail-meta-label {
+    font-family: var(--font-mono);
+    font-size: 10.5px; font-weight: 700;
+    color: var(--text-faint);
+    text-transform: uppercase;
+    width: 58px; flex-shrink: 0;
+}
+#emailSubject { font-family: var(--font-body); font-weight: 800; color: var(--accent-strong); font-size: 14.5px; }
+
+#emailContent {
+    font-size: 14.5px; line-height: 1.65; color: var(--text);
+    font-family: var(--font-body);
+}
+#emailContent p { margin-bottom: 8px !important; }
+
+#emailSignature {
+    margin-top: 22px; padding-top: 16px;
+    border-top: 1px dashed var(--border);
+    font-size: 13.5px; line-height: 1.55; color: var(--text-muted);
+    font-family: var(--font-body);
+}
+
+/* Chặn bôi đen nội dung email (giữ nguyên hành vi cũ) */
+#emailContent, #emailSignature {
+    -webkit-user-select: none; -ms-user-select: none; user-select: none;
+    cursor: default;
+}
+#emailSubject { -webkit-user-select: text; user-select: text; cursor: text; }
+body { -webkit-user-select: text; user-select: text; }
+
+/* ----- 8. Nút bấm ----- */
+.btn-accent {
+    background: var(--accent);
+    color: #fff;
+    font-weight: 700;
+    border-radius: var(--radius-sm);
+    transition: background 0.15s ease, transform 0.1s ease;
+    box-shadow: var(--shadow-sm);
+}
+.btn-accent:hover { background: var(--accent-strong); }
+.btn-accent:active { transform: translateY(1px); }
+
+.btn-ghost {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    font-weight: 700;
+    border-radius: var(--radius-sm);
+    transition: all 0.15s ease;
+}
+.btn-ghost:hover { color: var(--ink); border-color: var(--border-strong); background: var(--bg-soft); }
+
+.btn-danger-soft {
+    background: var(--danger-soft);
+    color: var(--danger);
+    font-weight: 700;
+    border-radius: var(--radius-sm);
+}
+.btn-danger-soft:hover { filter: brightness(0.97); }
+
+/* ----- 9. Settings tab cards ----- */
+.settings-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-sm);
+}
+.settings-icon {
+    width: 38px; height: 38px;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 10px;
+}
+
+/* ----- 10. Toast ----- */
+#toast {
+    background: var(--surface);
+    border: 1px solid var(--success-soft);
+    color: var(--success);
+    box-shadow: var(--shadow-lg);
+}
+
+/* ----- 11. Badge điều hành góc trên ----- */
+.ops-badge {
+    font-family: var(--font-mono);
+    background: var(--ink-soft);
+    color: var(--ink);
+    border: 1px solid var(--border);
+}
+
+/* ----- 12. Trợ năng: focus-visible rõ ràng cho toàn trang ----- */
+a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+}
+
+/* ----- 13. Cảnh báo lỗi định dạng SĐT (giữ id cũ) ----- */
+#phone_error { font-family: var(--font-body); }
+
+/* =========================================================
+   BỔ SUNG HOÀN CHỈNH: FIX KHUNG CC/BCC & TRẠNG THÁI TAB
+   ========================================================= */
+
+/* Ép bẻ gãy chuỗi email dính liền không khoảng trắng (vd: HuyVD@fpt.com;QuangNT@fpt.com) */
+#ccDisplay, #bccDisplay {
+    align-items: flex-start !important;
+    height: auto !important;
+    min-height: 32px;
+}
+
+#ccValue, #bccValue,
+textarea[id*="cc"], textarea[id*="bcc"],
+input[id*="cc"], input[id*="bcc"],
+.cc-bcc-display, #ccEmailDisplay, #bccEmailDisplay,
+#emailCC, #emailBCC {
+    display: block !important;
+    flex: 1 !important;
+    word-break: break-all !important;
+    overflow-wrap: break-word !important;
+    white-space: normal !important;
+    line-height: 1.6 !important;
+    padding-bottom: 4px;
+}
+
+/* Đảm bảo class active nhận diện chính xác hiệu ứng bóng cam cam đặc thù mà không bị kẹt style cũ */
+.tab-btn.active {
+    background-color: rgba(249, 115, 22, 0.1) !important;
+    color: rgb(234, 88, 12) !important;
+    box-shadow: 0 0 12px rgba(234, 88, 12, 0.2), inset 0 -2px 0 rgb(234, 88, 12) !important;
+}
+
+/* =========================================================
+   LOGIN SCREEN — AI COMMAND CENTER STYLE
+   Chỉ áp dụng riêng cho #loginModal, không ảnh hưởng phần còn lại
+   ========================================================= */
+
+.login-scene {
+    background:
+        radial-gradient(ellipse 80% 60% at 50% -10%, rgba(242, 111, 33, 0.16), transparent 60%),
+        linear-gradient(180deg, #060a12 0%, #0a0f1a 55%, #060a12 100%);
+    overflow: hidden;
+}
+
+/* Lưới nền kiểu "grid" công nghệ */
+.login-bg-grid {
+    position: absolute;
+    inset: 0;
+    background-image:
+        linear-gradient(rgba(255,255,255,0.045) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.045) 1px, transparent 1px);
+    background-size: 42px 42px;
+    -webkit-mask-image: radial-gradient(ellipse 70% 60% at 50% 35%, #000 30%, transparent 78%);
+            mask-image: radial-gradient(ellipse 70% 60% at 50% 35%, #000 30%, transparent 78%);
+    pointer-events: none;
+}
+
+/* Các quầng sáng (orbs) trôi nổi phía sau */
+.login-orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(70px);
+    opacity: 0.55;
+    pointer-events: none;
+    animation: orb-float 9s ease-in-out infinite;
+}
+.login-orb-1 {
+    width: 320px; height: 320px;
+    top: -80px; left: -60px;
+    background: radial-gradient(circle, rgba(242,111,33,0.55), transparent 70%);
+    animation-delay: 0s;
+}
+.login-orb-2 {
+    width: 260px; height: 260px;
+    bottom: -60px; right: -40px;
+    background: radial-gradient(circle, rgba(56,211,153,0.35), transparent 70%);
+    animation-delay: 2.2s;
+}
+.login-orb-3 {
+    width: 220px; height: 220px;
+    bottom: 30%; left: 8%;
+    background: radial-gradient(circle, rgba(90,140,255,0.30), transparent 70%);
+    animation-delay: 4s;
+}
+@keyframes orb-float {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    50% { transform: translate(18px, -22px) scale(1.08); }
+}
+@media (prefers-reduced-motion: reduce) {
+    .login-orb { animation: none; }
+}
+
+/* Thẻ kính (glassmorphism) chứa nội dung đăng nhập */
+.login-card {
+    position: relative;
+    background: rgba(20, 26, 38, 0.72);
+    border: 1px solid rgba(255, 255, 255, 0.09);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    box-shadow:
+        0 24px 60px rgba(0, 0, 0, 0.55),
+        0 0 0 1px rgba(242, 111, 33, 0.06),
+        inset 0 1px 0 rgba(255,255,255,0.05);
+}
+
+/* Viền gradient phát sáng chạy quanh thẻ */
+.login-card::before {
+    content: "";
+    position: absolute;
+    inset: -1px;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(120deg, rgba(242,111,33,0.55), rgba(56,211,153,0.25), rgba(90,140,255,0.35), rgba(242,111,33,0.55));
+    background-size: 300% 300%;
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    animation: border-flow 6s linear infinite;
+    pointer-events: none;
+    z-index: -1;
+}
+@keyframes border-flow {
+    0% { background-position: 0% 50%; }
+    100% { background-position: 300% 50%; }
+}
+
+/* Badge trạng thái "AI Engine Online" */
+.login-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 5px 14px;
+    width: fit-content;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    color: #ffb582;
+    background: rgba(242, 111, 33, 0.12);
+    border: 1px solid rgba(242, 111, 33, 0.3);
+    border-radius: 999px;
+}
+.login-badge-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: #38D399;
+    box-shadow: 0 0 0 3px rgba(56, 211, 153, 0.22);
+    animation: pulse-dot 2s infinite;
+}
+
+/* Vòng logo trung tâm phát sáng kiểu AI core */
+.login-logo-ring {
+    width: 76px; height: 76px;
+    border-radius: 22px;
+    display: flex; align-items: center; justify-content: center;
+    background: conic-gradient(from 0deg, #F26F21, #5A8CFF, #38D399, #F26F21);
+    animation: ring-spin 5s linear infinite;
+    padding: 2.5px;
+}
+.login-logo-core {
+    width: 100%; height: 100%;
+    border-radius: 19px;
+    background: #10151f;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 26px;
+    color: #ffb582;
+}
+@keyframes ring-spin {
+    to { transform: rotate(360deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+    .login-logo-ring, .login-badge-dot, .login-card::before { animation: none; }
+}
+
+.login-title {
+    font-family: var(--font-display);
+    font-size: 26px;
+    font-weight: 700;
+    background: linear-gradient(90deg, #ffffff, #ffcfa8 60%, #F26F21);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+.login-subtitle {
+    font-size: 13px;
+    color: #9aa4b6;
+    line-height: 1.5;
+    max-width: 320px;
+    margin: 0 auto;
+}
+
+/* Khung bao nút đăng nhập Google */
+.login-google-wrap {
+    display: flex;
+    justify-content: center;
+    padding: 6px;
+    border-radius: 12px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.07);
+}
+
+.login-footer-note {
+    margin-top: 18px;
+    text-align: center;
+    font-size: 11px;
+    color: #687087;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    letter-spacing: 0.02em;
+}
+
+/* Trên màn hình rất nhỏ, thu nhỏ bớt padding của thẻ đăng nhập */
+@media (max-width: 380px) {
+    .login-card { padding: 24px 18px !important; }
+    .login-title { font-size: 22px; }
+}
+
+/* =========================================================
+   RESPONSIVE MOBILE + SIDEBAR THU GỌN / CỐ ĐỊNH
+   ========================================================= */
+
+/* Cột chức năng: mặc định là drawer trượt (mobile), là cột tĩnh (desktop) */
+.soc-sidebar {
+    display: flex;
+    position: fixed;
+    top: 0; left: 0; bottom: 0;
+    width: 280px;
+    z-index: 70;
+    transform: translateX(-100%);
+    transition: transform 0.25s ease, width 0.2s ease;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+}
+.soc-sidebar.sidebar-open { transform: translateX(0); box-shadow: var(--shadow-lg); }
+
+@media (min-width: 768px) {
+    .soc-sidebar {
+        position: relative;
+        transform: none;
+        width: 288px;
+        z-index: 1;
+    }
+    .soc-sidebar.sidebar-collapsed { width: 84px; }
+    .soc-sidebar.sidebar-collapsed .sidebar-title-block,
+    .soc-sidebar.sidebar-collapsed .sidebar-label,
+    .soc-sidebar.sidebar-collapsed .account-detail {
+        display: none;
+    }
+    .soc-sidebar.sidebar-collapsed .sidebar-top { justify-content: center; padding-left: 12px; padding-right: 12px; }
+    .soc-sidebar.sidebar-collapsed #sidebarCollapseBtn { margin-left: 0; }
+    .soc-sidebar.sidebar-collapsed .tab-btn { justify-content: center; text-align: center; padding-left: 0; padding-right: 0; }
+    .soc-sidebar.sidebar-collapsed .tab-btn i { margin-right: 0; }
+    .soc-sidebar.sidebar-collapsed .soc-account-card { display: flex; justify-content: center; padding: 10px; }
+    .soc-sidebar.sidebar-collapsed .soc-account-card #btnLogout { width: auto; padding: 10px; }
+    .soc-sidebar.sidebar-collapsed .soc-account-card #btnLogout i { margin-right: 0; }
+}
+
+.tab-btn { display: flex; align-items: center; }
+
+/* Lớp phủ tối phía sau khi mở menu trên mobile */
+.sidebar-overlay {
+    position: fixed; inset: 0;
+    background: rgba(6, 10, 18, 0.55);
+    z-index: 65;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+}
+.sidebar-overlay.is-visible { opacity: 1; pointer-events: auto; }
+@media (min-width: 768px) {
+    .sidebar-overlay { display: none; }
+}
+
+/* Nút thu gọn / đóng trong cột chức năng */
+.sidebar-icon-btn {
+    width: 32px; height: 32px;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text-muted);
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: all 0.15s ease;
+}
+.sidebar-icon-btn:hover { color: var(--accent); border-color: var(--accent); }
+
+/* Tinh chỉnh không gian & bố cục cho màn hình nhỏ (điện thoại) */
+@media (max-width: 767px) {
+    main { padding: 16px !important; }
+    .mail-frame .p-8 { padding: 18px !important; }
+    .step-body { padding: 14px !important; }
+    .ops-badge { display: none !important; }
+
+    /* Ép layout xem trước xuống dưới form trên màn hình hẹp, tránh vỡ giao diện */
+    .xl\:col-span-5, .xl\:col-span-7 { width: 100%; }
+
+    .settings-card, .step-card, .workspace-panel { border-radius: 12px; }
+
+    #emailSubject { font-size: 13.5px; }
+    #emailContent { font-size: 14px; }
+}
+
+@media (max-width: 420px) {
+    .soc-header h2 span#headerTitle { max-width: 130px; }
+    .ops-badge { display: none !important; }
+}

@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <script>
+        // Áp dụng theme Sáng/Tối ngay lập tức (trước khi render) để tránh nháy màn hình
+        try {
+            document.documentElement.setAttribute("data-theme", localStorage.getItem("soc_theme") || "light");
+        } catch (e) {}
+    </script>
+    
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-P091WPTF8N"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-P091WPTF8N');
+    </script>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <title>SOC Portal - Internal Tools</title>
+
+    <link rel="icon" type="image/png" sizes="180x180" href="https://tools.manhcuongit.online/Images/Logo/favicon%20fpt.png">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <link rel="stylesheet" href="CSS/style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.6/purify.min.js"></script>
+
+   <script>
+        document.addEventListener('contextmenu', event => event.preventDefault());
+        document.onkeydown = function (e) {
+            if (e.keyCode == 123) return false; // F12
+            if (e.ctrlKey && e.shiftKey && e.keyCode == 'I'.charCodeAt(0)) return false; // Ctrl+Shift+I
+            if (e.ctrlKey && e.shiftKey && e.keyCode == 'C'.charCodeAt(0)) return false; // Ctrl+Shift+C
+            if (e.ctrlKey && e.shiftKey && e.keyCode == 'J'.charCodeAt(0)) return false; // Ctrl+Shift+J
+            if (e.ctrlKey && e.keyCode == 'U'.charCodeAt(0)) return false; // Ctrl+U
+        }
+    </script>
+
+</head>
+<body class="overflow-x-hidden font-sans">
+
+    <div id="loginModal" class="fixed inset-0 flex items-center justify-center z-50 login-scene" style="display: flex;">
+        <div class="login-bg-grid"></div>
+        <div class="login-orb login-orb-1"></div>
+        <div class="login-orb login-orb-2"></div>
+        <div class="login-orb login-orb-3"></div>
+
+        <div class="login-card rounded-3xl p-8 max-w-md w-full mx-4 relative">
+            <div class="login-badge mx-auto mb-6">
+                <span class="login-badge-dot"></span> HỆ THỐNG SẴN SÀNG
+            </div>
+
+            <div class="text-center mb-8">
+                <div class="login-logo-ring mx-auto mb-5">
+                    <div class="login-logo-core">
+                        <i class="fa-solid fa-headset"></i>
+                    </div>
+                </div>
+                <h1 class="login-title mb-2">SOC Portal</h1>
+                <p class="login-subtitle">Công cụ khởi tạo email nghiệp vụ nhanh chóng · Đăng nhập bằng tài khoản Google để truy cập hệ thống</p>
+            </div>
+
+            <div id="googleSignInBtn" class="login-google-wrap mb-5"></div>
+
+            <div id="userInfoSection" class="hidden">
+                <div class="soc-account-card rounded-xl p-4 mb-4">
+                    <p class="text-xs mb-2 font-bold uppercase font-mono" style="color: var(--accent);">Đã đăng nhập</p>
+                    <p id="userNameDisplay" class="text-sm font-bold" style="color: var(--text);"></p>
+                    <p id="userEmailDisplay" class="text-xs mt-1" style="color: var(--text-muted);"></p>
+                </div>
+                <button id="logoutBtn" class="btn-danger-soft w-full px-4 py-3 rounded-xl">
+                    <i class="fa-solid fa-sign-out-alt mr-2"></i> Đăng xuất
+                </button>
+            </div>
+
+            <div class="login-footer-note">
+                <i class="fa-solid fa-shield-halved"></i> Bảo mật bằng Google OAuth 2.0
+            </div>
+        </div>
+    </div>
+
+    <div id="mainInterface" class="hidden flex h-screen overflow-hidden">
+
+        <div id="sidebarOverlay" class="sidebar-overlay"></div>
+
+        <aside id="sidebar" class="soc-sidebar flex-col overflow-y-auto">
+            <div class="p-6 border-b flex items-center gap-3 sidebar-top" style="border-color: var(--border);">
+                <div class="h-10 w-10 flex-shrink-0 flex items-center justify-center rounded-xl" style="background: var(--surface); border: 1px solid var(--border);">
+                    <img src="https://tools.manhcuongit.online/Images/Logo/SOC-Logo-V2.png" alt="SOC Portal Logo" class="w-10 h-10 object-contain">
+                </div>
+                <div class="sidebar-title-block min-w-0">
+                    <h1 class="font-display font-bold tracking-wide text-base leading-none truncate" style="color: var(--text);">SOC PORTAL</h1>
+                    <p class="text-[10px] font-mono font-bold uppercase tracking-widest mt-1" style="color: var(--accent);">Internal Tools</p>
+                </div>
+
+                <button id="sidebarCloseBtn" class="sidebar-icon-btn md:hidden ml-auto" title="Đóng menu">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+                <button id="sidebarCollapseBtn" class="sidebar-icon-btn hidden md:flex ml-auto" title="Thu gọn cột chức năng">
+                    <i class="fa-solid fa-chevron-left"></i>
+                </button>
+            </div>
+
+            <nav class="p-4 space-y-1.5 mt-2 flex-1">
+                <button id="tabMain" class="w-full text-left px-4 py-3 rounded-lg text-sm tab-btn active" data-tab="main">
+                    <i class="fa-solid fa-wand-magic-sparkles w-5 mr-2"></i> <span class="sidebar-label">Tạo Email</span>
+                </button>
+                <button id="tabStats" class="w-full text-left px-4 py-3 rounded-lg text-sm tab-btn" data-tab="stats">
+                    <i class="fa-solid fa-chart-line w-5 mr-2"></i> <span class="sidebar-label">Thống kê</span>
+                </button>
+                <button id="tabSettings" class="w-full text-left px-4 py-3 rounded-lg text-sm tab-btn" data-tab="settings">
+                    <i class="fa-solid fa-sliders w-5 mr-2"></i> <span class="sidebar-label">Cài đặt</span>
+                </button>
+                <div class="my-4 border-t" style="border-color: var(--border);"></div>
+                <div class="soc-account-card px-4 py-3 rounded-lg">
+                    <div class="account-detail">
+                        <p class="text-xs font-bold uppercase tracking-wider mb-2 font-mono" style="color: var(--text-faint);">Tài khoản</p>
+                        <p id="sidebarUserName" class="text-sm font-bold truncate" style="color: var(--text);"></p>
+                        <p id="sidebarUserEmail" class="text-xs truncate mt-1" style="color: var(--text-muted);"></p>
+                    </div>
+                    <button id="btnLogout" class="btn-danger-soft w-full mt-3 px-3 py-2 text-xs">
+                        <i class="fa-solid fa-sign-out-alt mr-1"></i> <span class="sidebar-label">Đăng xuất</span>
+                    </button>
+                </div>
+            </nav>
+        </aside>
+
+        <div class="flex-1 flex flex-col overflow-hidden">
+            <header class="soc-header h-16 px-4 md:px-6 flex items-center justify-between gap-3">
+                <div class="flex items-center gap-3 min-w-0">
+                    <button id="mobileMenuBtn" class="theme-toggle md:hidden" title="Mở danh mục chức năng">
+                        <i class="fa-solid fa-bars"></i>
+                    </button>
+                    <h2 class="font-bold tracking-wide text-sm flex items-center gap-2 truncate" style="color: var(--text);">
+                        <i class="fa-solid fa-envelope-open-text" style="color: var(--accent);"></i> <span id="headerTitle" class="truncate">Dynamic Email Generator</span>
+                    </h2>
+                </div>
+                <div class="flex items-center gap-3 flex-shrink-0">
+                    <div id="statusPill" class="status-pill">
+                        <span class="dot"></span>
+                        <span id="statusPillLabel">Chưa chọn mẫu</span>
+                    </div>
+                    <button id="themeToggle" class="theme-toggle" title="Chuyển giao diện Sáng/Tối">
+                        <i id="themeToggleIcon" class="fa-solid fa-moon"></i>
+                    </button>
+                    <div class="ops-badge px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider hidden lg:block">
+                        SOC · Trung Tâm Điều Hành Dịch Vụ
+                    </div>
+                </div>
+            </header>
+
+            <main class="flex-1 overflow-y-auto p-6 md:p-8 space-y-6" style="background: var(--bg);">
+
+                <div id="mainTab" class="tab-content active" style="display: block;">
+                    <div class="border-b pb-4 flex justify-between items-end" style="border-color: var(--border);">
+                        <div>
+                            <h2 class="font-display text-2xl font-bold" style="color: var(--text);">Khởi tạo Email nghiệp vụ</h2>
+                            <p class="text-sm mt-1" style="color: var(--text-muted);">Chuẩn hóa nội dung, rút ngắn thao tác và phục vụ xử lý nhanh trong quá trình soạn email.</p>
+                        </div>
+                        <button id="btnReset" class="btn-ghost text-xs px-4 py-2">
+                            <i class="fa-solid fa-rotate-right mr-1"></i> Làm mới
+                        </button>
+                    </div>
+
+                    <div class="grid grid-cols-1 xl:grid-cols-12 gap-6 mt-6">
+                        <div class="xl:col-span-5 flex flex-col gap-4">
+
+                            <div class="step-card">
+                                <div class="step-head">
+                                    <span class="step-index font-mono">B1</span>
+                                    <span class="step-title">Chọn nghiệp vụ / mẫu email</span>
+                                </div>
+                                <div class="step-body">
+                                    <select id="templateSelector" class="soc-input w-full">
+                                        <option value="">-- Đang tải các mẫu email... --</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="step-card flex-1">
+                                <div class="step-head">
+                                    <span class="step-index font-mono">B2</span>
+                                    <span class="step-title">Điền thông tin cần thiết</span>
+                                </div>
+                                <div id="dynamicForm" class="step-body space-y-4">
+                                    <p class="text-center text-sm italic py-10" style="color: var(--text-faint);">Vui lòng chọn một mẫu để hệ thống phục vụ tạo email...</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="xl:col-span-7 flex flex-col gap-4">
+                            <div class="workspace-panel p-4 flex justify-between items-center">
+                                <h3 class="font-display text-sm font-bold uppercase tracking-wide" style="color: var(--text);">
+                                    <i class="fa-regular fa-eye mr-1.5" style="color: var(--accent);"></i> Xem trước Email thực tế
+                                </h3>
+                                <button id="btnCopy" class="btn-accent px-5 py-2.5 text-xs">
+                                    <i class="fa-regular fa-copy mr-1"></i> Copy Nội Dung
+                                </button>
+                            </div>
+
+                            <div class="mail-frame flex-1 flex flex-col">
+                                <div class="mail-toolbar">
+                                    <div class="mail-dots"><span></span><span></span><span></span></div>
+                                    <span class="text-[10px] font-mono uppercase tracking-wider" style="color: var(--text-faint);">Bản xem trước</span>
+                                </div>
+                                <div class="mail-meta">
+                                    <div class="mail-meta-row">
+                                        <span class="mail-meta-label font-mono">Subject</span>
+                                        <span id="emailSubject" class="truncate block"></span>
+                                    </div>
+                                    <div id="emailHeaders" class="hidden">
+                                        <div id="ccDisplay" class="mail-meta-row hidden">
+                                            <span class="mail-meta-label font-mono">CC</span>
+                                            <span id="ccValue" class="font-mono text-xs" style="color: var(--text);"></span>
+                                        </div>
+                                        <div id="bccDisplay" class="mail-meta-row hidden">
+                                            <span class="mail-meta-label font-mono">BCC</span>
+                                            <span id="bccValue" class="font-mono text-xs" style="color: var(--text);"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="p-8 overflow-y-auto" style="min-height: 420px;">
+                                    <div id="emailContent">
+                                        <div class="text-center mt-20 italic text-sm" style="color: var(--text-faint);">
+                                            Nội dung email sẽ xuất hiện tại đây...
+                                        </div>
+                                    </div>
+                                    <div id="emailSignature"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="statsTab" class="tab-content hidden" style="display: none;">
+                    <div class="mb-8">
+                        <h2 class="font-display text-2xl font-bold" style="color: var(--text);">Thống kê sử dụng</h2>
+                        <p class="text-sm mt-1" style="color: var(--text-muted);">Báo cáo tổng hợp số lượt sử dụng mẫu email.</p>
+                    </div>
+                    <div id="statsTabContent">
+                        </div>
+                </div>
+
+                <div id="settingsTab" class="tab-content hidden" style="display: none;">
+                    <div class="mb-8">
+                        <h2 class="font-display text-2xl font-bold" style="color: var(--text);">Cài đặt</h2>
+                        <p class="text-sm mt-1" style="color: var(--text-muted);">Quản lý cấu hình email, vùng miền và thông tin liên hệ</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div class="settings-card p-6">
+                            <div class="flex items-center gap-3 mb-4">
+                                <div class="settings-icon" style="background: var(--accent-soft); color: var(--accent-strong);">
+                                    <i class="fa-solid fa-envelope"></i>
+                                </div>
+                                <h3 class="font-display text-lg font-bold" style="color: var(--text);">Email BCC Mặc Định</h3>
+                            </div>
+                            <label class="soc-label">Địa chỉ email BCC:</label>
+                            <input type="email" id="settingsBccEmail" class="soc-input w-full mb-3" placeholder="Đang nạp dữ liệu...">
+                        </div>
+
+                        <div class="settings-card p-6">
+                            <div class="flex items-center gap-3 mb-4">
+                                <div class="settings-icon" style="background: var(--success-soft); color: var(--success);">
+                                    <i class="fa-solid fa-location-dot"></i>
+                                </div>
+                                <h3 class="font-display text-lg font-bold" style="color: var(--text);">Miền Nam</h3>
+                            </div>
+                            <label class="soc-label">Email Miền Nam:</label>
+                            <input type="text" id="settingsSouthEmail" class="soc-input w-full mb-4" placeholder="Đang nạp dữ liệu...">
+                            <label class="soc-label">Ký tự nhận diện:</label>
+                            <input type="text" id="settingsSouthPatterns" class="soc-input w-full font-mono" placeholder="Đang nạp dữ liệu...">
+                        </div>
+
+                        <div class="settings-card p-6">
+                            <div class="flex items-center gap-3 mb-4">
+                                <div class="settings-icon" style="background: var(--ink-soft); color: var(--ink);">
+                                    <i class="fa-solid fa-location-dot"></i>
+                                </div>
+                                <h3 class="font-display text-lg font-bold" style="color: var(--text);">Miền Bắc</h3>
+                            </div>
+                            <label class="soc-label">Email Miền Bắc:</label>
+                            <input type="text" id="settingsNorthEmail" class="soc-input w-full mb-4" placeholder="Đang nạp dữ liệu...">
+                            <label class="soc-label">Ký tự nhận diện:</label>
+                            <input type="text" id="settingsNorthPatterns" class="soc-input w-full font-mono" placeholder="Đang nạp dữ liệu...">
+                        </div>
+
+                        <div class="settings-card p-6" style="background: var(--accent-soft); border-color: var(--accent-soft);">
+                            <div class="flex items-start gap-3">
+                                <i class="fa-solid fa-lightbulb text-2xl mt-1" style="color: var(--accent-strong);"></i>
+                                <div>
+                                    <h4 class="font-bold mb-2" style="color: var(--accent-soft-text);">Nhận diện Tự động</h4>
+                                    <p class="text-sm" style="color: var(--accent-soft-text);">Hệ thống sẽ tự động nhận diện vùng miền dựa trên 2 ký tự đầu của số hợp đồng.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <div id="toast" class="fixed bottom-12 right-6 px-5 py-3.5 rounded-2xl text-xs font-bold tracking-wide hidden flex items-center gap-3">
+        <i class="fa-solid fa-circle-check text-lg" style="color: var(--success);"></i> <span id="toast-message">Đã sao chép thành công!</span>
+    </div>
+
+    <script src="JS/region-detector.js"></script>
+    <script src="JS/google-auth.js"></script>
+    <script src="JS/engine.js"></script>
+    <script src="JS/settings-panel.js"></script>
+    <script src="JS/ui-enhancements.js"></script>
+
+    <script src="Templates/1_xin_thong_tin.js"></script>
+    <script src="Templates/2_da_xu_ly.js"></script>
+    <script src="Templates/3_bao_hong.js"></script>
+    <script src="Templates/4_thanh_toan.js"></script>
+    <script src="Templates/5_kpdv.js"></script>
+    <script src="Templates/6_thanh_ly.js"></script>
+    <script src="Templates/7_phuc_dap.js"></script>
+    <script src="Templates/11_gui_noi_bo.js"></script>
+    <script src="Templates/12_gui_hoa_don.js"></script>
+    <script src="Templates/8_o_failure.js"></script>
+    <script src="Templates/9_o_payment.js"></script>
+    <script src="Templates/10_o_service.js"></script>
+</body>
+</html>
