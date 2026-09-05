@@ -18,14 +18,18 @@
    Bản vá (mới nhất #3): Thêm "Badge nhận diện khu vực" hiển thị ngay dưới
    ô Số hợp đồng (field_contractId) — khi nhân viên gõ số hợp đồng, hệ
    thống tự động nhận diện và hiển thị nổi bật tên khu vực tương ứng.
-   Bản vá (mới nhất #4): Badge khu vực đổi sang vị trí "absolute" (nổi lên
-   trên, không chiếm chỗ trong flow layout) để không làm lệch chiều cao
-   giữa các ô nằm cùng hàng (VD: hàng Số hợp đồng / SĐT / Địa chỉ ở Mẫu
-   Gửi nội bộ) — trước đây badge làm cột "Số hợp đồng" cao hơn 2 cột kia,
-   khiến 3 ô bị lệch nhau theo chiều dọc. Đồng thời cảnh báo "không nhận
-   diện được khu vực" được làm nổi bật hơn: nền đỏ đậm, chữ to hơn, có
-   hiệu ứng nhấp nháy nhẹ để nhân viên dễ chú ý (định nghĩa hiệu ứng nằm ở
-   class .region-indicator-warning trong CSS/style.css).
+   Bản vá (mới nhất #4, đã thay thế bởi #5): Từng thử dùng "position: absolute"
+   cho badge khu vực kèm margin-bottom cố định để bù khoảng trống — cách này
+   không ổn định (margin cố định không đủ khi nội dung badge dài/xuống dòng,
+   gây đè chữ lên field kế tiếp).
+   Bản vá (mới nhất #5): Đổi hẳn sang badge nằm trong LUỒNG BÌNH THƯỜNG (không
+   absolute) + đổi hàng chứa Số hợp đồng sang canh đỉnh (items-start) thay vì
+   canh đáy (items-end). Kết quả: 3 ô Số hợp đồng/SĐT/Địa chỉ luôn ngang hàng
+   nhau ở phía trên bất kể badge có hiện hay không, và khi badge xuất hiện thì
+   layout tự động co giãn đẩy nội dung phía dưới xuống — không cần tính trước
+   khoảng cách, không còn tình trạng đè chữ. Cảnh báo "không nhận diện được
+   khu vực" vẫn nổi bật: nền đỏ đậm, chữ to hơn, nhấp nháy nhẹ (class
+   .region-indicator-warning trong CSS/style.css).
    ========================================================= */
 
 const SYSTEM_ASSETS = {
@@ -99,14 +103,17 @@ function getFieldHtml(field) {
         extraHtml = `<div id="phone_error" style="display: none; color: #dc2626; font-size: 12px; margin-top: 4px; font-weight: 500;">Sai định dạng số ĐT</div>`;
     }
 
-    // FIX #4: Badge nhận diện khu vực dùng "position: absolute" — nổi lên trên
-    // mà KHÔNG chiếm chỗ trong dòng chảy layout (không cộng thêm chiều cao vào
-    // cột chứa nó), nhờ vậy khi nằm chung hàng với các ô khác (VD: SĐT, Địa chỉ)
-    // thì 3 ô vẫn cao bằng nhau và canh đều dù badge có hiện hay không.
-    // Cột cha (được thêm class "relative" ở renderForm) là điểm neo vị trí.
+    // FIX #5: Badge nhận diện khu vực nằm trong LUỒNG BÌNH THƯỜNG (không còn
+    // absolute) — tự động đẩy nội dung phía dưới xuống khi xuất hiện, không cần
+    // tính trước khoảng cách. Là 1 khối (div) chứ không phải viên thuốc 1 dòng,
+    // để chữ dài (thông báo cảnh báo) tự xuống dòng gọn trong bề rộng cột, không
+    // tràn ra ngoài hay đè lên nội dung khác. Để 3 ô cùng hàng (VD: Số hợp đồng /
+    // SĐT / Địa chỉ) luôn ngang hàng nhau bất kể badge có hiện hay không, hàng
+    // chứa ô này phải dùng "items-start" (canh đỉnh) thay vì "items-end" — xem
+    // renderForm().
     if (field.id === "contractId") {
-        extraHtml += `<div id="regionIndicator" class="hidden absolute left-0 top-full mt-1.5 z-10 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full font-bold whitespace-nowrap" style="border: 1px solid transparent; font-size: 11px;">
-            <i class="fa-solid fa-location-dot"></i> <span id="regionIndicatorText"></span>
+        extraHtml += `<div id="regionIndicator" class="hidden mt-2 px-2.5 py-1.5 rounded-lg font-bold leading-snug" style="border: 1px solid transparent; font-size: 11px;">
+            <i class="fa-solid fa-location-dot mr-1"></i><span id="regionIndicatorText"></span>
         </div>`;
     }
 
@@ -209,18 +216,19 @@ function renderForm(templateId) {
     if (template.fields) {
         template.fields.forEach(field => {
             if (field.type === "row") {
-                // FIX #4: Nếu hàng này có chứa ô Số hợp đồng (nơi có thể hiện
-                // badge khu vực dạng absolute phía dưới), tăng khoảng cách dưới
-                // hàng (mb-9 thay vì mb-4) để badge không đè lên khối field kế tiếp.
+                // FIX #5: Nếu hàng này có ô Số hợp đồng (có thể hiện badge khu vực
+                // bên dưới), canh đỉnh (items-start) thay vì canh đáy (items-end) —
+                // nhờ vậy nhãn + ô nhập của cả 3 cột luôn ngang hàng nhau ở phía trên,
+                // không bị lệch dù cột Số hợp đồng có cao hơn do có thêm badge.
+                // Các hàng khác (VD: hàng chọn nguồn + checkbox SOS) vẫn giữ items-end
+                // như cũ để không ảnh hưởng cách canh đã có.
                 const rowHasContractId = field.fields.some(sub => sub.id === "contractId");
-                const rowMarginCls = rowHasContractId ? "mb-14" : "mb-4";
+                const rowAlignCls = rowHasContractId ? "items-start" : "items-end";
 
-                html += `<div class="flex gap-4 ${rowMarginCls} items-end">`;
+                html += `<div class="flex gap-4 mb-4 ${rowAlignCls}">`;
                 field.fields.forEach(sub => {
                     let wCls = sub.width || "flex-1";
-                    // "relative" làm điểm neo vị trí cho badge absolute (không ảnh hưởng
-                    // các field khác vì chỉ có hiệu lực khi có phần tử con absolute).
-                    html += `<div class="${wCls} relative">`;
+                    html += `<div class="${wCls}">`;
                     if (sub.type !== "checkbox") {
                         html += `<label class="soc-label block mb-1">${sub.label}:</label>`;
                         html += getFieldHtml(sub);
@@ -234,10 +242,10 @@ function renderForm(templateId) {
                 });
                 html += `</div>`;
             } else {
-                // FIX #4: Tương tự, field đứng riêng (không nằm trong "row") cũng
-                // được thêm "relative" + tăng margin-bottom khi là Số hợp đồng.
-                const wrapCls = field.id === "contractId" ? "mb-14 relative" : "mb-4 relative";
-                html += `<div class="${wrapCls}">`;
+                // Field đứng riêng (không nằm trong "row") vốn đã ở dạng khối
+                // (div thường), badge bên dưới tự động đẩy nội dung tiếp theo
+                // xuống mà không cần xử lý gì thêm.
+                html += `<div class="mb-4">`;
                 if (field.type !== "checkbox") {
                     html += `<label class="soc-label block mb-1">${field.label}:</label>`;
                     html += getFieldHtml(field);
