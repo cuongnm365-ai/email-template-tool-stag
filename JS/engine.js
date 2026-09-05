@@ -15,6 +15,11 @@
    ghép chữ), làm phá vỡ bộ đệm ghép chữ của IME. Cách fix: theo dõi sự kiện
    compositionstart/compositionend, tạm ngưng việc tự động định dạng trong
    lúc IME đang ghép chữ, chỉ áp dụng định dạng sau khi ghép chữ xong.
+   Bản vá (mới nhất #3): Thêm "Badge nhận diện khu vực" hiển thị ngay dưới
+   ô Số hợp đồng (field_contractId) — khi nhân viên gõ số hợp đồng, hệ
+   thống tự động nhận diện và hiển thị nổi bật tên khu vực tương ứng
+   (vd: gõ "SGH223422" -> hiện "Khu vực: Hồ Chí Minh"), giúp nhân viên
+   biết ngay CC sẽ được thêm theo vùng nào mà không cần chờ xem email.
    ========================================================= */
 
 const SYSTEM_ASSETS = {
@@ -88,6 +93,15 @@ function getFieldHtml(field) {
         extraHtml = `<div id="phone_error" style="display: none; color: #dc2626; font-size: 12px; margin-top: 4px; font-weight: 500;">Sai định dạng số ĐT</div>`;
     }
 
+    // FIX: Thêm khung Badge nhận diện khu vực ngay dưới ô Số hợp đồng.
+    // Mặc định ẩn (hidden), JS (updateRegionIndicator) sẽ hiện/đổi nội dung
+    // và màu sắc mỗi khi nhân viên gõ vào ô này.
+    if (field.id === "contractId") {
+        extraHtml += `<div id="regionIndicator" class="hidden mt-2 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold" style="border: 1px solid transparent;">
+            <i class="fa-solid fa-location-dot"></i> <span id="regionIndicatorText"></span>
+        </div>`;
+    }
+
     if (field.type === "textarea") {
         return `<textarea id="field_${field.id}" rows="4" class="soc-input template-input w-full" ${formatAttr} placeholder="${field.placeholder || ''}"></textarea>${extraHtml}`;
     } else if (field.type === "select") {
@@ -101,6 +115,38 @@ function getFieldHtml(field) {
     } else {
         return `<input type="text" id="field_${field.id}" class="soc-input template-input w-full" ${formatAttr} placeholder="${field.placeholder || ''}">${extraHtml}`;
     }
+}
+
+// FIX: Hàm cập nhật Badge nhận diện khu vực. Được gọi mỗi khi nội dung ô
+// Số hợp đồng (field_contractId) thay đổi. Dùng chung logic detectRegion
+// với phần tính CC trong displayEmailHeaders() để đảm bảo luôn đồng bộ:
+// badge hiện khu vực nào thì CC cũng sẽ lấy đúng email của khu vực đó.
+function updateRegionIndicator(contractId) {
+    const indicator = document.getElementById("regionIndicator");
+    const textEl = document.getElementById("regionIndicatorText");
+    if (!indicator || !textEl || typeof regionManager === "undefined") return;
+
+    const value = (contractId || "").trim();
+
+    if (!value) {
+        indicator.classList.add("hidden");
+        return;
+    }
+
+    const region = regionManager.detectRegion(value);
+
+    if (region) {
+        textEl.textContent = `Khu vực: ${regionManager.getRegionLabel(region)}`;
+        indicator.style.background = "var(--success-soft)";
+        indicator.style.color = "var(--success)";
+        indicator.style.borderColor = "var(--success-soft)";
+    } else {
+        textEl.textContent = "Không nhận diện được khu vực (kiểm tra lại Số hợp đồng)";
+        indicator.style.background = "var(--danger-soft)";
+        indicator.style.color = "var(--danger)";
+        indicator.style.borderColor = "var(--danger-soft)";
+    }
+    indicator.classList.remove("hidden");
 }
 
 function renderForm(templateId) {
@@ -205,6 +251,7 @@ function renderForm(templateId) {
             // Nếu đang trong lúc IME ghép chữ thì bỏ qua bước định dạng ngay lúc này,
             // chỉ cập nhật email preview với giá trị thô hiện có, tránh phá vỡ IME
             if (e.target.dataset.composing === "1") {
+                if (e.target.id === "field_contractId") updateRegionIndicator(e.target.value);
                 renderEmail();
                 return;
             }
@@ -216,7 +263,11 @@ function renderForm(templateId) {
             input.addEventListener('change', renderEmail);
         }
     });
-    
+
+    // Khởi tạo trạng thái Badge khu vực ngay khi mở form (phòng trường hợp
+    // ô Số hợp đồng đã có sẵn giá trị từ trước, ví dụ sau khi bấm "Làm mới")
+    updateRegionIndicator(document.getElementById("field_contractId")?.value || "");
+
     renderEmail(); 
 }
 
@@ -245,6 +296,10 @@ function applyFieldFormatAndRender(target) {
         }
         target.setSelectionRange(target.value.length, target.value.length);
     }
+
+    // FIX: Cập nhật Badge nhận diện khu vực ngay sau khi định dạng (uppercase) áp dụng
+    if (target.id === "field_contractId") updateRegionIndicator(target.value);
+
     renderEmail();
 }
 
