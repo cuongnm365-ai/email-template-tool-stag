@@ -213,7 +213,7 @@ function renderForm(templateId) {
                 // badge khu vực dạng absolute phía dưới), tăng khoảng cách dưới
                 // hàng (mb-9 thay vì mb-4) để badge không đè lên khối field kế tiếp.
                 const rowHasContractId = field.fields.some(sub => sub.id === "contractId");
-                const rowMarginCls = rowHasContractId ? "mb-9" : "mb-4";
+                const rowMarginCls = rowHasContractId ? "mb-14" : "mb-4";
 
                 html += `<div class="flex gap-4 ${rowMarginCls} items-end">`;
                 field.fields.forEach(sub => {
@@ -236,7 +236,7 @@ function renderForm(templateId) {
             } else {
                 // FIX #4: Tương tự, field đứng riêng (không nằm trong "row") cũng
                 // được thêm "relative" + tăng margin-bottom khi là Số hợp đồng.
-                const wrapCls = field.id === "contractId" ? "mb-9 relative" : "mb-4 relative";
+                const wrapCls = field.id === "contractId" ? "mb-14 relative" : "mb-4 relative";
                 html += `<div class="${wrapCls}">`;
                 if (field.type !== "checkbox") {
                     html += `<label class="soc-label block mb-1">${field.label}:</label>`;
