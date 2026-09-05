@@ -21,7 +21,7 @@ class RegionManager {
             { key: "tayBac", label: "Tây Bắc Bộ + Quảng Ninh", patterns: ["BG","BN","CB","LS","LC","PT","TQ","TN","VP","YB","HA","QN"] },
             { key: "dongBac", label: "Đông Bắc Bộ + Hải Phòng + Hải Dương", patterns: ["DB","HM","HT","HB","HY","ND","NB","NA","SL","TB","TH","HP","HD"] },
             { key: "mienTrung", label: "Miền Trung - Tây Nguyên + Khánh Hòa + Đà Nẵng", patterns: ["BI","DL","GL","HU","KT","PY","QB","QA","QI","QT","DK","NT","DA"] },
-            { key: "dongNamBo", label: "Đông Nam Bộ + Đồng Nai + Bình Dương + Vũng Tàu", patterns: ["BP","BT","LD","LA","NN","TI","DN","BD"] },
+            { key: "dongNamBo", label: "Đông Nam Bộ + Đồng Nai + Bình Dương + Vũng Tàu", patterns: ["BP","BT","LD","LA","NN","TI","DN","BD","VT"] },
             { key: "tayNamBo", label: "Tây Nam Bộ", patterns: ["AG","BL","BE","CM","CT","DT","HG","KG","ST","TG","TV","VL"] }
         ];
 
