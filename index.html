@@ -263,41 +263,20 @@
                             <input type="email" id="settingsBccEmail" class="soc-input w-full mb-3" placeholder="Đang nạp dữ liệu...">
                         </div>
 
-                        <div class="settings-card p-6">
-                            <div class="flex items-center gap-3 mb-4">
-                                <div class="settings-icon" style="background: var(--success-soft); color: var(--success);">
-                                    <i class="fa-solid fa-location-dot"></i>
-                                </div>
-                                <h3 class="font-display text-lg font-bold" style="color: var(--text);">Miền Nam</h3>
-                            </div>
-                            <label class="soc-label">Email Miền Nam:</label>
-                            <input type="text" id="settingsSouthEmail" class="soc-input w-full mb-4" placeholder="Đang nạp dữ liệu...">
-                            <label class="soc-label">Ký tự nhận diện:</label>
-                            <input type="text" id="settingsSouthPatterns" class="soc-input w-full font-mono" placeholder="Đang nạp dữ liệu...">
-                        </div>
-
-                        <div class="settings-card p-6">
-                            <div class="flex items-center gap-3 mb-4">
-                                <div class="settings-icon" style="background: var(--ink-soft); color: var(--ink);">
-                                    <i class="fa-solid fa-location-dot"></i>
-                                </div>
-                                <h3 class="font-display text-lg font-bold" style="color: var(--text);">Miền Bắc</h3>
-                            </div>
-                            <label class="soc-label">Email Miền Bắc:</label>
-                            <input type="text" id="settingsNorthEmail" class="soc-input w-full mb-4" placeholder="Đang nạp dữ liệu...">
-                            <label class="soc-label">Ký tự nhận diện:</label>
-                            <input type="text" id="settingsNorthPatterns" class="soc-input w-full font-mono" placeholder="Đang nạp dữ liệu...">
-                        </div>
-
                         <div class="settings-card p-6" style="background: var(--accent-soft); border-color: var(--accent-soft);">
                             <div class="flex items-start gap-3">
                                 <i class="fa-solid fa-lightbulb text-2xl mt-1" style="color: var(--accent-strong);"></i>
                                 <div>
                                     <h4 class="font-bold mb-2" style="color: var(--accent-soft-text);">Nhận diện Tự động</h4>
-                                    <p class="text-sm" style="color: var(--accent-soft-text);">Hệ thống sẽ tự động nhận diện vùng miền dựa trên 2 ký tự đầu của số hợp đồng.</p>
+                                    <p class="text-sm" style="color: var(--accent-soft-text);">Hệ thống tự động nhận diện vùng miền dựa trên các ký tự đầu của số hợp đồng (7 khu vực).</p>
                                 </div>
                             </div>
                         </div>
+
+                        <!-- Các thẻ Email theo từng vùng miền (7 khu vực) được JS/settings-panel.js
+                             tự động sinh ra tại đây, dựa theo regionManager.regionDefs trong
+                             JS/region-detector.js. Không cần sửa HTML khi thêm/bớt vùng miền. -->
+                        <div id="regionSettingsGrid" class="contents"></div>
                     </div>
                 </div>
             </main>
