@@ -1,12 +1,9 @@
 /* =========================================================
    HỆ THỐNG NHẬN DIỆN VÀ CẤU HÌNH VÙNG MIỀN (API CLOUD LOAD)
-   Bản cập nhật: Chuyển từ 2 vùng (Nam/Bắc) sang 7 vùng CC:
-   Hà Nội, Hồ Chí Minh, Tây Bắc Bộ + Quảng Ninh,
-   Đông Bắc Bộ + Hải Phòng + Hải Dương,
-   Miền Trung Tây Nguyên + Khánh Hòa + Đà Nẵng,
-   Đông Nam Bộ + Đồng Nai + Bình Dương + Vũng Tàu, Tây Nam Bộ.
-   Mỗi vùng có 1 email CC riêng, lấy từ Google Sheet qua "sheetKey".
-   Phần BCC (defaultBccEmail) giữ nguyên như cũ.
+   Bản cập nhật: Mở rộng từ 2 vùng (Nam/Bắc) lên 7 vùng miền chi tiết
+   theo nghiệp vụ CSKH mới. Ký tự nhận diện vẫn hardcode trong file này
+   (không tải từ Sheet), CHỈ có Email từng vùng là tải từ Google Sheet
+   qua CONFIG_API_URL — giữ đúng nguyên tắc cũ.
    ========================================================= */
 
 class RegionManager {
@@ -14,65 +11,25 @@ class RegionManager {
         // DÁN LINK API CẤU HÌNH (SHEET 1) VÀO ĐÂY:
         this.CONFIG_API_URL = "https://script.google.com/macros/s/AKfycbyPnMb6B_t5Gv_7K0PtbYWpZVNuoPZZC5KkQ4roe1HbkM8LmkrX2TSMr8HRvPzH3I6y4A/exec";
 
-        // Danh sách 7 vùng miền + ký tự nhận diện + tên key tương ứng trên Google Sheet (cột A)
-        this.regions = [
-            {
-                key: "HN",
-                label: "Hà Nội",
-                sheetKey: "emailHN",
-                patterns: ["HN"],
-                email: ""
-            },
-            {
-                key: "HCM",
-                label: "Hồ Chí Minh",
-                sheetKey: "emailHCM",
-                patterns: ["HCM"],
-                email: ""
-            },
-            {
-                key: "TAY_BAC_QN",
-                label: "Tây Bắc Bộ + Quảng Ninh",
-                sheetKey: "emailTayBacQN",
-                patterns: ["BG", "BN", "CB", "LS", "LC", "PT", "TQ", "TN", "VP", "YB", "HA", "QN"],
-                email: ""
-            },
-            {
-                key: "DONG_BAC_HP_HD",
-                label: "Đông Bắc Bộ + Hải Phòng + Hải Dương",
-                sheetKey: "emailDongBacHPHD",
-                patterns: ["DB", "HM", "HT", "HB", "HY", "ND", "NB", "NA", "SL", "TB", "TH", "HP", "HD"],
-                email: ""
-            },
-            {
-                key: "MIEN_TRUNG_TN",
-                label: "Miền Trung Tây Nguyên, Khánh Hòa, Đà Nẵng",
-                sheetKey: "emailMienTrungTayNguyen",
-                patterns: ["BI", "DL", "GL", "HU", "KT", "PY", "QB", "QA", "QI", "QT", "DK", "NT", "DA"],
-                email: ""
-            },
-            {
-                key: "DONG_NAM_BO",
-                label: "Đông Nam Bộ + Đồng Nai + Bình Dương + Vũng Tàu",
-                sheetKey: "emailDongNamBo",
-                patterns: ["BP", "BT", "LD", "LA", "NN", "TI", "DN", "BD"],
-                email: ""
-            },
-            {
-                key: "TAY_NAM_BO",
-                label: "Tây Nam Bộ",
-                sheetKey: "emailTayNamBo",
-                patterns: ["AG", "BL", "BE", "CM", "CT", "DT", "HG", "KG", "ST", "TG", "TV", "VL"],
-                email: ""
-            }
+        // Danh sách 7 vùng miền + ký tự nhận diện (2 ký tự đầu Số hợp đồng,
+        // riêng Hà Nội và Hồ Chí Minh dùng mã dài hơn "HN" / "HCM").
+        // "key" ở đây dùng để ghép thành tên biến settings (vd: hnEmail, hcmEmail...)
+        // và cũng chính là "key" cột A tương ứng trên Google Sheet cấu hình.
+        this.regionDefs = [
+            { key: "hn", label: "Hà Nội", patterns: ["HN"] },
+            { key: "hcm", label: "Hồ Chí Minh", patterns: ["HCM"] },
+            { key: "tayBac", label: "Tây Bắc Bộ + Quảng Ninh", patterns: ["BG","BN","CB","LS","LC","PT","TQ","TN","VP","YB","HA","QN"] },
+            { key: "dongBac", label: "Đông Bắc Bộ + Hải Phòng + Hải Dương", patterns: ["DB","HM","HT","HB","HY","ND","NB","NA","SL","TB","TH","HP","HD"] },
+            { key: "mienTrung", label: "Miền Trung - Tây Nguyên + Khánh Hòa + Đà Nẵng", patterns: ["BI","DL","GL","HU","KT","PY","QB","QA","QI","QT","DK","NT","DA"] },
+            { key: "dongNamBo", label: "Đông Nam Bộ + Đồng Nai + Bình Dương + Vũng Tàu", patterns: ["BP","BT","LD","LA","NN","TI","DN","BD"] },
+            { key: "tayNamBo", label: "Tây Nam Bộ", patterns: ["AG","BL","BE","CM","CT","DT","HG","KG","ST","TG","TV","VL"] }
         ];
 
-        // BCC giữ nguyên, không đổi
-        this.settings = {
-            defaultBccEmail: ""
-        };
+        // Khởi tạo settings rỗng cho từng vùng + BCC (giữ nguyên như cũ)
+        this.settings = { defaultBccEmail: "" };
+        this.regionDefs.forEach(r => { this.settings[r.key + "Email"] = ""; });
 
-        // Tự động tải cấu hình từ Google Sheets khi khởi chạy
+        // Tự động tải cấu hình Email từ Google Sheets khi khởi chạy
         this.loadRemoteConfig();
     }
 
@@ -83,12 +40,10 @@ class RegionManager {
             const response = await fetch(this.CONFIG_API_URL);
             const data = await response.json();
 
-            // Gán email CC cho từng vùng dựa theo "sheetKey" khai báo ở trên
-            this.regions.forEach(region => {
-                if (data[region.sheetKey]) region.email = data[region.sheetKey];
+            this.regionDefs.forEach(r => {
+                const key = r.key + "Email";
+                if (data[key]) this.settings[key] = data[key];
             });
-
-            // BCC giữ nguyên logic cũ
             if (data.defaultBccEmail) this.settings.defaultBccEmail = data.defaultBccEmail;
 
             // Cập nhật lên UI ngay khi kéo dữ liệu xong
@@ -101,34 +56,38 @@ class RegionManager {
     }
 
     clearSettings() {
-        this.regions.forEach(region => { region.email = ""; });
+        this.regionDefs.forEach(r => { this.settings[r.key + "Email"] = ""; });
         this.settings.defaultBccEmail = "";
     }
 
-    // Nhận diện vùng miền từ Số hợp đồng. Ưu tiên kiểm tra 3 ký tự đầu (dành cho "HCM"),
-    // sau đó kiểm tra 2 ký tự đầu cho các vùng còn lại.
+    // Nhận diện vùng miền dựa trên tiền tố của Số hợp đồng.
+    // Hỗ trợ mã 2 ký tự (đa số) lẫn 3 ký tự (HCM) bằng cách so khớp
+    // đúng độ dài của từng mẫu ký tự khai báo ở trên.
     detectRegion(contractId) {
         if (!contractId) return null;
-        const code2 = contractId.substring(0, 2).toUpperCase();
-        const code3 = contractId.substring(0, 3).toUpperCase();
+        const upper = contractId.toUpperCase();
 
-        for (const region of this.regions) {
-            if (region.patterns.includes(code3) || region.patterns.includes(code2)) {
-                return region.key;
+        for (const r of this.regionDefs) {
+            for (const p of r.patterns) {
+                if (upper.substring(0, p.length) === p) return r.key;
             }
         }
         return null;
     }
 
-    // Trả về email CC tương ứng với "key" vùng miền (vd: "HN", "HCM", "TAY_BAC_QN"...)
-    getRegionEmail(regionKey) {
-        const region = this.regions.find(r => r.key === regionKey);
-        return region ? region.email : "";
+    getRegionEmail(region) {
+        if (!region) return "";
+        return this.settings[region + "Email"] || "";
     }
 
-    getRegionLabel(regionKey) {
-        const region = this.regions.find(r => r.key === regionKey);
-        return region ? region.label : "";
+    getRegionLabel(region) {
+        const found = this.regionDefs.find(r => r.key === region);
+        return found ? found.label : "";
+    }
+
+    getPatterns(regionKey) {
+        const found = this.regionDefs.find(r => r.key === regionKey);
+        return found ? found.patterns.join(", ") : "";
     }
 }
 
