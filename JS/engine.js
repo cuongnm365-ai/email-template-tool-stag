@@ -112,8 +112,8 @@ function getFieldHtml(field) {
     // chứa ô này phải dùng "items-start" (canh đỉnh) thay vì "items-end" — xem
     // renderForm().
     if (field.id === "contractId") {
-        extraHtml += `<div id="regionIndicator" class="hidden mt-2 px-2.5 py-1.5 rounded-lg font-bold leading-snug" style="border: 1px solid transparent; font-size: 11px;">
-            <i class="fa-solid fa-location-dot mr-1"></i><span id="regionIndicatorText"></span>
+        extraHtml += `<div id="regionIndicator" class="hidden mt-2 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full font-bold whitespace-nowrap" style="border: 1px solid transparent; font-size: 11px;">
+            <i class="fa-solid fa-location-dot"></i><span id="regionIndicatorText"></span>
         </div>`;
     }
 
