@@ -1,11 +1,12 @@
 /* =========================================================
    PANEL CẤU HÌNH & THỐNG KÊ - SOC COMMAND CENTER
-   Bản cập nhật: Dựng ĐỘNG các thẻ vùng miền (7 vùng) từ
-   regionManager.regions thay vì 2 thẻ "Miền Nam/Miền Bắc" cố định
-   như trước — cần thêm 1 container id="regionCardsContainer" trong
-   index.html (xem hướng dẫn đi kèm). Phần thống kê & BCC giữ nguyên.
+   Bản cập nhật: Hiển thị ĐỘNG 7 thẻ vùng miền (thay vì 2 thẻ Nam/Bắc
+   cố định trong index.html) — dựa theo regionManager.regionDefs.
+   BCC giữ nguyên logic cũ, không thay đổi.
    ========================================================= */
 
+// Link API Google Apps Script dùng để GHI (POST - trong engine.js) và ĐỌC (GET - tại đây)
+// thống kê tổng hợp. Phải trùng với link đang dùng trong JS/engine.js.
 const STATS_API_URL_READ = "https://script.google.com/macros/s/AKfycbzIGRhMMZ5KLjjNgkocTxX0CrEM2_zTipwK4LGQfJweaEsRejqOksxG3C8XfopB0gZ4/exec";
 
 function initSettingsPanel() {
@@ -58,48 +59,49 @@ function switchTab(tabName) {
     }
 }
 
-/* =========================================================
-   DỰNG ĐỘNG 7 THẺ VÙNG MIỀN (thay cho 2 thẻ Miền Nam/Miền Bắc cũ)
-   ========================================================= */
-function renderRegionCards() {
-    const container = document.getElementById("regionCardsContainer");
+function loadSettingsUI() {
+    if (typeof regionManager === "undefined") return;
+
+    const bccEmailInput = document.getElementById("settingsBccEmail");
+    if (bccEmailInput) bccEmailInput.value = regionManager.settings.defaultBccEmail || "";
+
+    renderRegionSettingsCards();
+    disableSettingsEditing();
+}
+
+// Dựng động 7 thẻ vùng miền (Email + Ký tự nhận diện) vào khung
+// #regionSettingsGrid có sẵn trong index.html — không cần sửa HTML mỗi khi
+// đổi số lượng/tên vùng miền, chỉ cần sửa regionDefs trong region-detector.js.
+function renderRegionSettingsCards() {
+    const container = document.getElementById("regionSettingsGrid");
     if (!container || typeof regionManager === "undefined") return;
 
     let html = "";
-    regionManager.regions.forEach(region => {
+    regionManager.regionDefs.forEach(r => {
+        const emailValue = regionManager.settings[r.key + "Email"] || "";
         html += `
             <div class="settings-card p-6">
                 <div class="flex items-center gap-3 mb-4">
                     <div class="settings-icon" style="background: var(--success-soft); color: var(--success);">
                         <i class="fa-solid fa-location-dot"></i>
                     </div>
-                    <h3 class="font-display text-lg font-bold" style="color: var(--text);">${region.label}</h3>
+                    <h3 class="font-display text-lg font-bold" style="color: var(--text);">${r.label}</h3>
                 </div>
-                <label class="soc-label">Email CC vùng miền:</label>
-                <input type="text" id="region_email_${region.key}" class="soc-input w-full mb-4" value="${region.email || ''}" placeholder="Đang nạp dữ liệu..." disabled>
+                <label class="soc-label">Email khu vực:</label>
+                <input type="text" id="settings_${r.key}Email" class="soc-input w-full mb-4" value="${emailValue}" placeholder="Chưa cấu hình trên Google Sheet" disabled>
                 <label class="soc-label">Ký tự nhận diện:</label>
-                <input type="text" id="region_patterns_${region.key}" class="soc-input w-full font-mono" value="${region.patterns.join(', ')}" disabled>
+                <input type="text" id="settings_${r.key}Patterns" class="soc-input w-full font-mono" value="${r.patterns.join(', ')}" disabled>
             </div>
         `;
     });
-
     container.innerHTML = html;
-}
-
-function loadSettingsUI() {
-    if (typeof regionManager === "undefined") return;
-
-    renderRegionCards();
-
-    const bccEmailInput = document.getElementById("settingsBccEmail");
-    if (bccEmailInput) bccEmailInput.value = regionManager.settings.defaultBccEmail || "";
-
-    disableSettingsEditing();
 }
 
 function disableSettingsEditing() {
     const bccInput = document.getElementById("settingsBccEmail");
     if (bccInput) bccInput.disabled = true;
+    // Các ô Email/Ký tự nhận diện theo từng vùng miền đã được render ở trạng thái
+    // disabled sẵn trong renderRegionSettingsCards(), không cần xử lý thêm ở đây.
 
     if (!document.getElementById("adminLockNotice")) {
         const container = document.querySelector("#settingsTab > .grid") || document.getElementById("settingsTab");
@@ -127,8 +129,9 @@ function disableSettingsEditing() {
 
 /* =========================================================
    MÔ-ĐUN: THỐNG KÊ TẦN SUẤT SỬ DỤNG MẪU EMAIL (TỔNG HỢP TẤT CẢ NHÂN VIÊN)
-   (Không đổi so với bản trước)
+   (Không thay đổi so với bản trước)
    ========================================================= */
+
 function renderTemplateStatistics() {
     const container = document.getElementById("statsTabContent");
     if (!container) return;
