@@ -17,7 +17,7 @@ class RegionManager {
         // và cũng chính là "key" cột A tương ứng trên Google Sheet cấu hình.
         this.regionDefs = [
             { key: "hn", label: "Hà Nội", patterns: ["HN"] },
-            { key: "hcm", label: "Hồ Chí Minh", patterns: ["HCM"] },
+            { key: "hcm", label: "Hồ Chí Minh", patterns: ["SG"] },
             { key: "tayBac", label: "Tây Bắc Bộ + Quảng Ninh", patterns: ["BG","BN","CB","LS","LC","PT","TQ","TN","VP","YB","HA","QN"] },
             { key: "dongBac", label: "Đông Bắc Bộ + Hải Phòng + Hải Dương", patterns: ["DB","HM","HT","HB","HY","ND","NB","NA","SL","TB","TH","HP","HD"] },
             { key: "mienTrung", label: "Miền Trung - Tây Nguyên + Khánh Hòa + Đà Nẵng", patterns: ["BI","DL","GL","HU","KT","PY","QB","QA","QI","QT","DK","NT","DA"] },
