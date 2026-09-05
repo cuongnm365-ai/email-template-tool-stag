@@ -17,9 +17,15 @@
    lúc IME đang ghép chữ, chỉ áp dụng định dạng sau khi ghép chữ xong.
    Bản vá (mới nhất #3): Thêm "Badge nhận diện khu vực" hiển thị ngay dưới
    ô Số hợp đồng (field_contractId) — khi nhân viên gõ số hợp đồng, hệ
-   thống tự động nhận diện và hiển thị nổi bật tên khu vực tương ứng
-   (vd: gõ "SGH223422" -> hiện "Khu vực: Hồ Chí Minh"), giúp nhân viên
-   biết ngay CC sẽ được thêm theo vùng nào mà không cần chờ xem email.
+   thống tự động nhận diện và hiển thị nổi bật tên khu vực tương ứng.
+   Bản vá (mới nhất #4): Badge khu vực đổi sang vị trí "absolute" (nổi lên
+   trên, không chiếm chỗ trong flow layout) để không làm lệch chiều cao
+   giữa các ô nằm cùng hàng (VD: hàng Số hợp đồng / SĐT / Địa chỉ ở Mẫu
+   Gửi nội bộ) — trước đây badge làm cột "Số hợp đồng" cao hơn 2 cột kia,
+   khiến 3 ô bị lệch nhau theo chiều dọc. Đồng thời cảnh báo "không nhận
+   diện được khu vực" được làm nổi bật hơn: nền đỏ đậm, chữ to hơn, có
+   hiệu ứng nhấp nháy nhẹ để nhân viên dễ chú ý (định nghĩa hiệu ứng nằm ở
+   class .region-indicator-warning trong CSS/style.css).
    ========================================================= */
 
 const SYSTEM_ASSETS = {
@@ -93,11 +99,13 @@ function getFieldHtml(field) {
         extraHtml = `<div id="phone_error" style="display: none; color: #dc2626; font-size: 12px; margin-top: 4px; font-weight: 500;">Sai định dạng số ĐT</div>`;
     }
 
-    // FIX: Thêm khung Badge nhận diện khu vực ngay dưới ô Số hợp đồng.
-    // Mặc định ẩn (hidden), JS (updateRegionIndicator) sẽ hiện/đổi nội dung
-    // và màu sắc mỗi khi nhân viên gõ vào ô này.
+    // FIX #4: Badge nhận diện khu vực dùng "position: absolute" — nổi lên trên
+    // mà KHÔNG chiếm chỗ trong dòng chảy layout (không cộng thêm chiều cao vào
+    // cột chứa nó), nhờ vậy khi nằm chung hàng với các ô khác (VD: SĐT, Địa chỉ)
+    // thì 3 ô vẫn cao bằng nhau và canh đều dù badge có hiện hay không.
+    // Cột cha (được thêm class "relative" ở renderForm) là điểm neo vị trí.
     if (field.id === "contractId") {
-        extraHtml += `<div id="regionIndicator" class="hidden mt-2 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold" style="border: 1px solid transparent;">
+        extraHtml += `<div id="regionIndicator" class="hidden absolute left-0 top-full mt-1.5 z-10 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full font-bold whitespace-nowrap" style="border: 1px solid transparent; font-size: 11px;">
             <i class="fa-solid fa-location-dot"></i> <span id="regionIndicatorText"></span>
         </div>`;
     }
@@ -121,6 +129,9 @@ function getFieldHtml(field) {
 // Số hợp đồng (field_contractId) thay đổi. Dùng chung logic detectRegion
 // với phần tính CC trong displayEmailHeaders() để đảm bảo luôn đồng bộ:
 // badge hiện khu vực nào thì CC cũng sẽ lấy đúng email của khu vực đó.
+// FIX #4: Trạng thái "không nhận diện được" giờ nổi bật rõ rệt hơn — nền đỏ
+// đậm, chữ trắng to hơn, có hiệu ứng nhấp nháy (class .region-indicator-warning
+// định nghĩa trong CSS/style.css) để nhân viên dễ chú ý và kiểm tra lại.
 function updateRegionIndicator(contractId) {
     const indicator = document.getElementById("regionIndicator");
     const textEl = document.getElementById("regionIndicatorText");
@@ -130,6 +141,7 @@ function updateRegionIndicator(contractId) {
 
     if (!value) {
         indicator.classList.add("hidden");
+        indicator.classList.remove("region-indicator-warning");
         return;
     }
 
@@ -137,14 +149,18 @@ function updateRegionIndicator(contractId) {
 
     if (region) {
         textEl.textContent = `Khu vực: ${regionManager.getRegionLabel(region)}`;
+        indicator.classList.remove("region-indicator-warning");
         indicator.style.background = "var(--success-soft)";
         indicator.style.color = "var(--success)";
         indicator.style.borderColor = "var(--success-soft)";
+        indicator.style.fontSize = "11px";
     } else {
-        textEl.textContent = "Không nhận diện được khu vực (kiểm tra lại Số hợp đồng)";
-        indicator.style.background = "var(--danger-soft)";
-        indicator.style.color = "var(--danger)";
-        indicator.style.borderColor = "var(--danger-soft)";
+        textEl.textContent = "⚠ Không nhận diện được khu vực – kiểm tra lại Số hợp đồng!";
+        indicator.classList.add("region-indicator-warning");
+        indicator.style.background = "#DC2626";
+        indicator.style.color = "#FFFFFF";
+        indicator.style.borderColor = "#DC2626";
+        indicator.style.fontSize = "12.5px";
     }
     indicator.classList.remove("hidden");
 }
@@ -193,10 +209,18 @@ function renderForm(templateId) {
     if (template.fields) {
         template.fields.forEach(field => {
             if (field.type === "row") {
-                html += `<div class="flex gap-4 mb-4 items-end">`;
+                // FIX #4: Nếu hàng này có chứa ô Số hợp đồng (nơi có thể hiện
+                // badge khu vực dạng absolute phía dưới), tăng khoảng cách dưới
+                // hàng (mb-9 thay vì mb-4) để badge không đè lên khối field kế tiếp.
+                const rowHasContractId = field.fields.some(sub => sub.id === "contractId");
+                const rowMarginCls = rowHasContractId ? "mb-9" : "mb-4";
+
+                html += `<div class="flex gap-4 ${rowMarginCls} items-end">`;
                 field.fields.forEach(sub => {
                     let wCls = sub.width || "flex-1";
-                    html += `<div class="${wCls}">`;
+                    // "relative" làm điểm neo vị trí cho badge absolute (không ảnh hưởng
+                    // các field khác vì chỉ có hiệu lực khi có phần tử con absolute).
+                    html += `<div class="${wCls} relative">`;
                     if (sub.type !== "checkbox") {
                         html += `<label class="soc-label block mb-1">${sub.label}:</label>`;
                         html += getFieldHtml(sub);
@@ -210,7 +234,10 @@ function renderForm(templateId) {
                 });
                 html += `</div>`;
             } else {
-                html += `<div class="mb-4">`;
+                // FIX #4: Tương tự, field đứng riêng (không nằm trong "row") cũng
+                // được thêm "relative" + tăng margin-bottom khi là Số hợp đồng.
+                const wrapCls = field.id === "contractId" ? "mb-9 relative" : "mb-4 relative";
+                html += `<div class="${wrapCls}">`;
                 if (field.type !== "checkbox") {
                     html += `<label class="soc-label block mb-1">${field.label}:</label>`;
                     html += getFieldHtml(field);

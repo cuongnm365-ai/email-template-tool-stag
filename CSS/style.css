@@ -407,6 +407,39 @@ input[id*="cc"], input[id*="bcc"],
 }
 
 /* =========================================================
+   BADGE NHẬN DIỆN KHU VỰC (Ô Số hợp đồng)
+   Badge dùng position:absolute (xem JS/engine.js) nên không làm lệch
+   chiều cao các ô cùng hàng. Trạng thái "không nhận diện được khu vực"
+   được làm nổi bật: nền đỏ đậm + chữ trắng to hơn + nhấp nháy nhẹ để
+   nhân viên dễ chú ý và kiểm tra lại Số hợp đồng.
+   ========================================================= */
+@keyframes region-blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.45; }
+}
+.region-indicator-warning {
+    animation: region-blink 1.1s ease-in-out infinite;
+    box-shadow: 0 2px 8px rgba(220, 38, 38, 0.35);
+}
+@media (prefers-reduced-motion: reduce) {
+    .region-indicator-warning { animation: none; }
+}
+
+/* =========================================================
+   DÒNG NHẮC KIỂM TRA EMAIL DƯỚI CC / BCC
+   Không nhấp nháy (khác với badge khu vực) — chỉ cần màu đỏ rõ và
+   chữ nhỉnh hơn một chút để nhân viên dễ đọc, không gây chói mắt khi
+   nhìn lâu trong ca làm việc.
+   ========================================================= */
+.cc-bcc-note {
+    color: var(--danger) !important;
+    font-size: 11.5px !important;
+    font-weight: 600;
+    font-style: normal !important;
+}
+html[data-theme="dark"] .cc-bcc-note { color: var(--danger) !important; }
+
+/* =========================================================
    LOGIN SCREEN — AI COMMAND CENTER STYLE
    Chỉ áp dụng riêng cho #loginModal, không ảnh hưởng phần còn lại
    ========================================================= */
